@@ -50,3 +50,44 @@ const user = await usermodel.create({
     }
 
 }
+
+export const loginController = async (req,res)=>{
+try {
+    const {email,password}= req.body;
+    if(!email || !password){
+        return res.status(500).send({
+            success : false,
+            message : "Pls Enter username & Password"
+        });
+    }
+    const user = await usermodel.findOne({email}); // requires await because user is actually a Promise not an actual document.
+    if(!user){
+        return res.status(401).send({
+            success : false,
+            message :"User Not Found"
+        });
+    }
+    const compareCredentials = await user.comparePassword(password);
+
+    if(!compareCredentials){
+        return res.status(404).send({
+            success : false,
+            message : "Invalid Credentials"
+        });
+    }
+
+    return res.status(200).send({
+        success : true,
+        message :"Login Success",
+        user
+    });
+    
+} catch (error) {
+    console.log(`Error in login ${error}`)
+    return res.status(401).send({
+        success : false,
+        message : "Error in Login"
+    });
+    
+}
+}
