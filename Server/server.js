@@ -4,8 +4,16 @@ import morgan from 'morgan';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+//Db import
+import connectDB from './config/db.js';
+
+
+
 //dot env config
 dotenv.config();
+
+//Database connection   
+connectDB();
 
 
 //rest object
@@ -19,6 +27,12 @@ app.use(cors());
 
 
 //route
+import testRoutes from '../Server/routes/testRoutes.js';
+import userRoutes from './routes/userRoute.js';
+app.use('/api/vi',testRoutes)
+
+app.use('/api/vi/user',userRoutes);
+
 app.get('/',(req,res)=>{
     console.log('Root dir');
     return res.status(200).send({msg : 'running'});
