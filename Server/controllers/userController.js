@@ -75,10 +75,17 @@ try {
             message : "Invalid Credentials"
         });
     }
-
-    return res.status(200).send({
+//Token Generation
+const token = user.generateToken();
+    return res.status(200).cookie("token",token,{
+        expires : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // today April 03 11:52AM -- expire time Fri, 10 Apr 2026 06:22:20 GMT
+        secure : process.env.NODE_ENV === "Development"?true : false,
+        httponly : process.env.NODE_ENV === "Development"?true : false,
+        
+    }).send({
         success : true,
         message :"Login Success",
+        token,
         user
     });
     
@@ -90,4 +97,75 @@ try {
     });
     
 }
+}
+
+//Profile Controller
+
+export const getUserProfile = async (req,res)=>{
+    try {
+        const user = await usermodel.findById(req.user._id); // fectching the actual user who have the last token generated
+        user.password = undefined; // to hide the password in display
+        return res.status(200).send({
+            success : true,
+            message : "User Profile Fetched",
+            user
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success : false,
+            message : "Error in Profile API"
+        })
+        
+    }
+}
+
+export const logoutController = async(req,res)=> {
+    try {
+
+        return res.status(200).cookie("token","",{
+        expires : new Date(Date.now()),
+        secure : process.env.NODE_ENV === "Development"?true : false,
+        httponly : process.env.NODE_ENV === "Development"?true : false,}).send({
+            success : true,
+            message : "LoggedOut successfully"
+        })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            success : false,
+            message: "Logout Issue"
+        })
+        
+    }
+    
+}
+
+export const updateProfileController = async (req,res)=>{
+    try {
+        const user = await usermodel.findById(req.user._id);
+        const {name,email,address,city,country,phone} = req.body
+        //validation and update
+        if(name) user.name = name;
+        if(email) user.email = email;
+        if(address) user.address = address;
+        if(city) user.city = city;
+        if(country) user.country = country;
+        if(phone) user.phone = phone;
+
+//saving the updated user
+        await user.save();
+        return res.status(200).send({
+            success : true,
+            message : "Profile Updated"
+        })
+    } catch (error) {
+
+        console.log(`Error in Update Profile ${error}`);
+        return res.status(500).send({
+            message : "User profile Cannot be Updated"
+        })
+        
+    }
 }

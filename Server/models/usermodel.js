@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
+import JWT from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
 
@@ -39,10 +40,19 @@ const userSchema = new mongoose.Schema({
     },
 },{timestamps:true});
 
+//JWT token
+
+userSchema.methods.generateToken = function(){
+    return JWT.sign({_id:this.id},process.env.JWT_SECRET,{expiresIn:"7d"})
+}
+
 //functions
 //hash function to encrypt the password
 
 userSchema.pre("save",async function(){
+    if(!this.isModified("password")){
+        return 
+    }
 this.password = await bcrypt.hash(this.password,10);  // format : "$2b$10$Eb.v5EJpgf4Nzj0ihFDaKenCubYR6MujgzrGf2XHK4nFNjis0Uu46"
 });
 
