@@ -169,3 +169,40 @@ export const updateProfileController = async (req,res)=>{
         
     }
 }
+
+export const updatepasswordController = async (req,res)=>{
+    try {
+        const {oldpassword,newpassword} = req.body;
+       const user= await usermodel.findById(req.user._id)
+        if(!oldpassword || !newpassword){
+           return res.status(500).send({
+            success : false,
+            message : "Provide Old and New Password"
+           })
+        }
+        //compare Old password check
+
+        const isMatch = user.comparePassword(oldpassword)
+        if(!isMatch){
+            return res.status(500).send({
+                success : false,
+                message : "Invalid Old Password"
+            })
+        }
+        user.password = newpassword;
+        await user.save();
+        return res.status(200).send({
+            success : true,
+            message :"Password updated Successfully",
+            
+        })
+
+    } catch (error) {
+        console.log(`Error in update-password ${error}`);
+        return res.status(500).send({
+            success: false,
+            message : "Error in Updating Password"
+        })
+        
+    }
+}
