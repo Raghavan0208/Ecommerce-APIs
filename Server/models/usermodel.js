@@ -36,7 +36,12 @@ const userSchema = new mongoose.Schema({
         minlength : [10,'Check the Number']
     },
     ProfilePic : {
+        public_id : {
         type : String,
+        },
+        url : {
+            type : String
+        }
     },
 },{timestamps:true});
 
