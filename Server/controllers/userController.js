@@ -211,14 +211,14 @@ export const updatepasswordController = async (req,res)=>{
 
 //Profile picture endpoint
 
-export const updatepictureController = async (req,res)=>{
+export const updateprofilepicController = async (req,res)=>{
     try {
         const user = await usermodel.findById(req.user._id);
         //get file from user from the request
         const file = getDataUri(req.file);
         //delete Previous image
-        await cloudinary.v2.uploader.destroy(user.ProfilePic.public_id);
-        //update new picture
+       await cloudinary.v2.uploader.destroy(user.ProfilePic.public_id);
+        //update new picture cdb->cloudinary database
        const cdb = await cloudinary.v2.uploader.upload(file.content);
        user.ProfilePic  = {
         public_id : cdb.public_id,
@@ -229,7 +229,8 @@ export const updatepictureController = async (req,res)=>{
 
     return res.status(200).send({
         success : true,
-        message : "Profile picture Updated"
+        message : "Profile picture Updated",
+        
     })
 
     } catch (error) {
