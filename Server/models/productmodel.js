@@ -22,16 +22,14 @@ const productSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Category'
     },
-    images : {
-        public_id :{
-            type : string
-        },
-        url : {
-            type : string
-        }
-    }
+    images : [{
+        public_id : String,
+        url : String
+        
+    },
+],
 
 },{timestamps:true})
 
-export const productModel = mongoose.model("Products",productSchema);
-export default productModel;
+export const productmodel = mongoose.model("Products",productSchema);
+export default productmodel;

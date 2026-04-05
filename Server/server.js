@@ -38,11 +38,13 @@ app.use(cookieParser());
 
 
 //route
-import testRoutes from '../Server/routes/testRoutes.js';
+// import testRoutes from '../Server/routes/testRoutes.js';
 import userRoutes from './routes/userRoute.js';
-app.use('/api/vi',testRoutes)
+import productRoutes from './routes/productRoutes.js';
+//app.use('/api/vi',testRoutes)
 
-app.use('/api/vi/user',userRoutes);
+app.use('/api/v1/user',userRoutes);
+app.use('/api/v1/product',productRoutes);
 
 app.get('/',(req,res)=>{
     console.log('Root dir');
@@ -53,7 +55,10 @@ app.get('/',(req,res)=>{
 const PORT = process.env.PORT || 8080;
 
 console.log(PORT);
-
+app.use((req, res, next) => {
+    console.log("Incoming:", req.method, req.url);
+    next();
+});
 //listen
 app.listen(PORT,()=>{
     console.log(`Server is listening to PORT ${process.env.PORT} on ${process.env.NODE_ENV} Mode`.bgMagenta.white);
