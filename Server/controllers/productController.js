@@ -108,3 +108,49 @@ export const createProductController = async (req,res)=>{
         
     }
 }
+
+export const updateProductController = async (req,res)=>{
+    try {
+
+        const product = await productmodel.findById(req.params.id)
+
+        if(!product){
+            return res.status(500).send({
+                message : "Product Not found"
+            })
+        }
+        const {name,description,price,stock,category} = req.body;
+
+        //validation & update
+
+        if(name) product.name = name;
+        if(description) product.description = description;
+        if(price) product.price = price;
+        if(stock) product.stock = stock;
+        if(category) product.category = category;
+
+        product.save();
+
+        return res.status(200).send({
+            success : true,
+            message : "Product Updated",
+            product
+        })
+        
+    } catch (error) {
+
+        console.log(`Product is not updated ${error}`);
+        //CastError || Object_ID
+        if(error.name === "CastError"){
+            return res.status(500).send({
+                success : false,
+                message : "Invalid ID",
+            })
+        }
+        res.status(500).send({
+            success : false,
+            message : "Update Product API error"
+        })
+        
+    }
+}
