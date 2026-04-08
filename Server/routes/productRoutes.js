@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProductController, getAllProductsController, getSingleProductsController, updateProductController } from '../controllers/productController.js';
+import { createProductController, getAllProductsController, getSingleProductsController, updateProductController, updateProductImageController } from '../controllers/productController.js';
 import { isAuth } from '../middleware/authMiddleware.js';
 import singlefileupload from "../middleware/multer.js"
 
@@ -16,5 +16,8 @@ router.post('/createproduct',isAuth,singlefileupload,createProductController)
 
 //Update product
 router.put('/:id',isAuth,updateProductController);
+
+//Update product image
+router.put('/image/:id',isAuth,singlefileupload,updateProductImageController);
 
 export default router
