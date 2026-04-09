@@ -41,10 +41,12 @@ app.use(cookieParser());
 // import testRoutes from '../Server/routes/testRoutes.js';
 import userRoutes from './routes/userRoute.js';
 import productRoutes from './routes/productRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js'
 //app.use('/api/vi',testRoutes)
 
 app.use('/api/v1/user',userRoutes);
 app.use('/api/v1/product',productRoutes);
+app.use('/api/v1/cat',categoryRoutes)
 
 app.get('/',(req,res)=>{
     console.log('Root dir');

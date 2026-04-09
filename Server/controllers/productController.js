@@ -1,7 +1,8 @@
-import express from "express";
+
 import productmodel from "../models/productmodel.js";
 import { getDataUri } from "../utils/features.js";
 import cloudinary from "cloudinary";
+
 
 export const getAllProductsController = async (req,res)=>{
 
@@ -160,14 +161,14 @@ export const updateProductImageController = async (req,res)=>{
 
         const product = await productmodel.findById(req.params.id);
         if(!product){
-            res.status(500).send({
+            return res.status(500).send({
                 success : false,
                 message : "Product not fount"
             })
         }
 
         if(!req.file){
-                res.status(404).send({
+              return res.status(404).send({
                     success : false,
                     message : "Product image not found"
                 })
@@ -181,7 +182,7 @@ export const updateProductImageController = async (req,res)=>{
         }
         product.images.push(image);
         await product.save();
-        res.status(200).send({
+       return  res.status(200).send({
             success : true,
             message : "Product Image Updated"
 
@@ -196,11 +197,109 @@ export const updateProductImageController = async (req,res)=>{
                 message : "Invalid ID",
             })
         }
-        res.status(500).send({
+       return  res.status(500).send({
             success : false,
             message : "Error in Update Product Image API"
         });
         
     }
 
+}
+
+export const deleteProductImageController = async (req,res)=>{
+    try {
+        const product = await productmodel.findById(req.params.id); // id of the product
+        if(!product){
+            console.log(`Product Not Found`)
+           return res.status(404).send({
+                success : false,
+                message : "Product Not found"
+            })
+        }
+        const id = req.query.id; // id of the image should be passed
+        if(!id){
+            return res.status(404).send({
+                success : false,
+                message : "ID not found"
+            })
+        }
+        //Find Image ID of the product.    comparing the ImageID by looping product.image array
+
+        let IsExist = -1;   
+        product.images.forEach((item , index)=>{
+            if(item._id.toString()=== id.toString()){
+                IsExist = index;
+            }
+        })
+        if(IsExist<0){
+            return res.status(404).send({
+                success : false,
+                message : "Image Not Found"
+            })
+        }
+
+        //DELETE Image
+
+        await cloudinary.v2.uploader.destroy(product.images[IsExist].public_id);
+        product.images.splice(IsExist,1)
+        await product.save()
+
+        return res.status(200).send({
+            success : true,
+            message : "Image Deleted"
+        })
+
+        
+    } catch (error) {
+
+        console.log(`Cannot Delete Product Image (API) ${error}`);
+         if(error.name === "CastError"){
+            return res.status(500).send({
+                success : false,
+                message : "Invalid ID",
+            })
+        }
+        res.status(500).send({
+            success : false,
+            message : "Cannot delete Product Image"
+        })
+        
+    }
+}
+
+export const deleteProductController = async(req,res)=>{
+    try {
+
+        const product = await productmodel.findById(req.params.id);
+        if(!product){
+            return res.status(404).send({
+                success : false,
+                message : "Product not found"
+            })
+        }
+        // delete the associated image of the product
+
+        for(let i=0; i<product.images.length; i++){
+            await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+
+        }
+        await product.deleteOne()
+        res.status(200).send({
+            success : true,
+            message : "Product Deleted"
+        })
+        
+    } catch (error) {
+        console.log(`Cannot Delete Product Image (API) ${error}`);
+         if(error.name === "CastError"){
+            return res.status(500).send({
+                success : false,
+                message : "Invalid ID",
+            })
+        }
+        res.status(500).send({
+            success : false,
+            message : "Cannot delete Product Image"
+        })
+    }
 }
