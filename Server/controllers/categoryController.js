@@ -112,3 +112,43 @@ export const deletecategoryController = async (req,res)=>{
             message : "Cannot delete Category"
     })
 }}
+
+export const updateCategoryController = async(req,res)=>{
+    try {
+        const category = await categoryModel.findById(req.params.id)
+        if(!category){
+            return res.status(404).send({
+                success : false,
+                message : "No category Found , Provide Correct ID"
+            })
+        }
+        const {Updcategory} = req.body
+        const products = await productmodel.find({category:category._id})
+        //update category in the product
+        for(let i=0 ;i<products.length; i++){
+            const product = products[i];
+            product.category = Updcategory;
+            await product.save()
+        }
+        if(Updcategory) category.category = Updcategory;
+        await category.save()
+        res.status(200).send({
+            success : true,
+            message : "Category Updated"
+        })
+        
+    } catch (error) {
+        console.log(`Error in Update category API ${error}`);
+        //CastError || Object_ID
+        if(error.name === "CastError"){
+            return res.status(500).send({
+                success : false,
+                message : "Invalid ID",
+            })
+        }
+        return res.status(500).send({
+            success : false,
+            message : "Cannot Update Category"
+    })
+    }
+}
